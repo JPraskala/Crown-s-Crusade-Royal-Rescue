@@ -3,11 +3,17 @@ using UnityEngine;
 public class CheckComponent : MonoBehaviour
 {
 	CharacterController controller;
-	
-	void Start() 
+
+	void Start()
 	{
-	   controller = GetComponent<CharacterController>();
-	   
-	   print(controller != null);
+		
+		if (!TryGetComponent<CharacterController>(out controller))
+		{
+			print("No Controller");
+		}
+		else 
+		{
+			print("Controller");
+		}
 	}
 }
