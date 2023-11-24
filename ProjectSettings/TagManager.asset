@@ -5,6 +5,14 @@ TagManager:
   serializedVersion: 2
   tags:
   - Ground
+  - Credits
+  - Start
+  - Title
+  - BoundsRight
+  - BoundsLeft
+  - HeavyBandit
+  - LightBandit
+  - Spikes
   layers:
   - Default
   - TransparentFX

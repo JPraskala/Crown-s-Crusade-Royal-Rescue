@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
+using TMPro;
+using UnityEngine.Tilemaps;
 
 public class Movement : MonoBehaviour
 {
@@ -46,6 +48,7 @@ public class Movement : MonoBehaviour
         if (!IsGrounded() && gravityEnabled)
         {
             rb.velocity += fall * Time.deltaTime;
+            
         }
 
         Move();
@@ -76,20 +79,14 @@ public class Movement : MonoBehaviour
 
     void Jump(InputAction.CallbackContext context)
     {
-        if (context.performed && IsGrounded())
-        {
-            gravityEnabled = false;
-            float jumpInfo = context.ReadValue<float>();
+        if (!context.performed || !IsGrounded()) return;
+        gravityEnabled = false;
+        float jumpInfo = context.ReadValue<float>();
 
-            Vector2 jumpMovement = new Vector2(rb.velocity.x, jumpInfo * jumpSpeed);
+        Vector2 jumpMovement = new Vector2(rb.velocity.x, jumpInfo * jumpSpeed);
             
-            rb.velocity = jumpMovement;
-            StartCoroutine(Fall());
-        }
-        else 
-        {
-            return;
-        }
+        rb.velocity = jumpMovement;
+        StartCoroutine(Fall());
     }
 
 
@@ -104,7 +101,8 @@ public class Movement : MonoBehaviour
     bool IsGrounded()
     {
         float groundDistance = 0.75f;
-        RaycastHit2D hit = Physics2D.BoxCast(transform.position, transform.localScale / 2, 0f, Vector2.down, groundDistance, Ground);
+        var transform1 = transform;
+        RaycastHit2D hit = Physics2D.BoxCast(transform1.position, transform1.localScale / 2, 0f, Vector2.down, groundDistance, Ground);
         return hit.collider != null;
     }
 
