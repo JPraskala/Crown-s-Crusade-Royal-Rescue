@@ -42,8 +42,8 @@ namespace UI
 
             if (!TryGetComponent(out m_playerCanvas)) gameObject.AddComponent<CanvasGroup>();
 
-            healthSlider.minValue = 0f;
-            healthSlider.maxValue = 150f;
+            healthSlider.minValue = 0.0f;
+            healthSlider.maxValue = 150.0f;
         }
 
         private void Update()

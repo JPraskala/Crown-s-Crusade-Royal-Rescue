@@ -13,7 +13,7 @@ namespace Player
         private Animator m_anim;
         private Game m_game;
         [Header("Movement")] 
-        private float m_speed;
+        private int m_speed;
         private const float JumpSpeed = 8.2f;
         private bool m_facingRight;
         private Vector2 m_gravity;
@@ -184,8 +184,6 @@ namespace Player
             {
                 m_anim.SetFloat(m_speedParam, moveX);
             }
-            
-            if (Input.GetKeyDown(KeyCode.Escape)) SceneLoader.LoadScene("Title");
         }
 
         private void FixedUpdate()
@@ -196,7 +194,7 @@ namespace Player
 
         private void DetermineSpeed()
         {
-            m_speed = !m_canMove ? 0f : PlayerCombat.Instance.InCombat() ? 3f : 6f;
+            m_speed = !m_canMove ? 0 : PlayerCombat.Instance.InCombat() ? 3 : 6;
         }
         private void Flip()
         {

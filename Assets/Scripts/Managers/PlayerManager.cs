@@ -1,4 +1,3 @@
-using UnityEditor;
 using UnityEngine;
 
 namespace Managers
@@ -6,7 +5,7 @@ namespace Managers
     public class PlayerManager : MonoBehaviour
     {
         private bool m_scriptOn;
-        private float m_playerHealth;
+        private int m_playerHealth;
         [SerializeField] private GameObject playerPrefab;
         private GameObject m_player;
         
@@ -27,7 +26,7 @@ namespace Managers
 
         private void Start()
         {
-            m_playerHealth = 150f;
+            m_playerHealth = 150;
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
@@ -36,11 +35,17 @@ namespace Managers
             m_scriptOn = SceneLoader.CurrentScene()[0] == 'L';
             
             gameObject.SetActive(m_scriptOn);
-            
-            
-            
-            if (m_scriptOn) PlayerInstance();
-            
+
+            switch (m_scriptOn)
+            {
+                case false when m_player != null:
+                    Destroy(m_player);
+                    m_player = null;
+                    break;
+                case true:
+                    PlayerInstance();
+                    break;
+            }
         }
         
         private void PlayerInstance()
@@ -101,9 +106,18 @@ namespace Managers
             return Instantiate(playerPrefab, vector, Quaternion.identity);
         }
 
-        public float GetHealth()
+        public int GetHealth()
         {
             return m_playerHealth;
+        }
+
+        public void ChangeHealth(int amount)
+        {
+            m_playerHealth += amount;
+
+            if (m_playerHealth < 0) m_playerHealth = 0;
+
+            if (m_playerHealth > 150) m_playerHealth = 150;
         }
     }
 }
