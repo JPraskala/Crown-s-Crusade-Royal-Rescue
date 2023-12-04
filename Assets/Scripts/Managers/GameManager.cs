@@ -21,7 +21,7 @@ namespace Managers
 
         private void Start() 
         {
-            SceneLoader.LoadScene("Level1");
+            SceneLoader.LoadScene(SceneLoader.MyScenes.Level1);
         }
     }
 }

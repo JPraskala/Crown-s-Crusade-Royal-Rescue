@@ -6,6 +6,12 @@ namespace Managers
     public class UIManager : MonoBehaviour
     {
         private bool m_scriptActive;
+        private enum TransitionTags
+        {
+            Start,
+            Credits,
+            Title
+        }
         
         public static UIManager Instance { get; private set; }
 
@@ -24,7 +30,7 @@ namespace Managers
         
         public void ToggleScript()
         {
-            m_scriptActive = SceneLoader.CurrentScene()[0] != 'L';
+            m_scriptActive = SceneLoader.CurrentSceneIndex() < 5;
             gameObject.SetActive(m_scriptActive);
         }
 
@@ -34,14 +40,14 @@ namespace Managers
 
             switch (button.tag)
             {
-                case "Start":
-                    SceneLoader.LoadScene("Level1");
+                case nameof(TransitionTags.Start):
+                    SceneLoader.LoadScene(SceneLoader.MyScenes.Level1);
                     break;
-                case "Credits":
-                    SceneLoader.LoadScene("Credits");
+                case nameof(TransitionTags.Credits):
+                    SceneLoader.LoadScene(SceneLoader.MyScenes.Credits);
                     break;
-                case "Title":
-                    SceneLoader.LoadScene("Title");
+                case nameof(TransitionTags.Title):
+                    SceneLoader.LoadScene(SceneLoader.MyScenes.Title);
                     break;
                 default:
                     print("Invalid Tag");

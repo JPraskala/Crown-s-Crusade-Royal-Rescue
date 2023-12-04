@@ -124,17 +124,17 @@ namespace Player
                     return;
             }
 
-            var currentScene = SceneLoader.CurrentScene()[^1];
+            var currentScene = SceneLoader.CurrentSceneIndex();
 
             switch (currentScene)
             {
-                case '1':
+                case 5:
                     m_leftEdge = -16.47441f;
                     m_rightEdge = 110.4864f;
                     break;
-                case '2':
+                case 6:
                     break;
-                case '3':
+                case 7:
                     break;
             }
 
@@ -168,22 +168,22 @@ namespace Player
             var moveInput = m_game.Player.Move.ReadValue<Vector2>();
 
             if (m_onLeftEdge ^ m_onRightEdge) m_canMove = false;
-
-            if ((moveInput.x > 0f && m_onLeftEdge) ^ (moveInput.x < 0f && m_onRightEdge)) m_canMove = true;
+            
+            var direction = (int)moveInput.x;
+            
+            if ((direction > 0 && m_onLeftEdge) ^ (direction < 0 && m_onRightEdge)) m_canMove = true;
             
             var moveX = m_speed * moveInput.x;
-
-            if ((m_facingRight && moveInput.x < 0f) ^ (!m_facingRight && moveInput.x > 0f))
-            {
+            
+            if ((m_facingRight && direction < 0) ^ (!m_facingRight && direction > 0))
                 Flip();
-            }
             
             m_rb.velocity = new Vector2(moveX, m_rb.velocity.y);
 
             if (m_grounded)
-            {
                 m_anim.SetFloat(m_speedParam, moveX);
-            }
+            
+            
         }
 
         private void FixedUpdate()
@@ -194,15 +194,14 @@ namespace Player
 
         private void DetermineSpeed()
         {
-            m_speed = !m_canMove ? 0 : PlayerCombat.Instance.InCombat() ? 3 : 6;
+            m_speed = !m_canMove ? 0 : PlayerCombat.Instance.InCombat() ? 5 : 6;
         }
         private void Flip()
         {
-            
             m_facingRight = !m_facingRight;
             var playerTransform = transform;
             var localScale = playerTransform.localScale;
-            localScale.x *= -1;
+            localScale.x *= -1f;
             playerTransform.localScale = localScale;
         }
 

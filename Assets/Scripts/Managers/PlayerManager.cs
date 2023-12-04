@@ -32,7 +32,7 @@ namespace Managers
         // ReSharper disable Unity.PerformanceAnalysis
         public void ToggleScript()
         {
-            m_scriptOn = SceneLoader.CurrentScene()[0] == 'L';
+            m_scriptOn = SceneLoader.CurrentSceneIndex() >= 5;
             
             gameObject.SetActive(m_scriptOn);
 
@@ -87,15 +87,15 @@ namespace Managers
 
         private GameObject InstantiatePlayer()
         {
-            var sceneChar = SceneLoader.CurrentScene()[^1];
+            var sceneIndex = SceneLoader.CurrentSceneIndex();
 
-            if (!char.IsNumber(sceneChar)) return null;
+            if (sceneIndex < 5) return null;
 
             Vector3 vector;
 
-            switch (sceneChar)
+            switch (sceneIndex)
             {
-                case '1':
+                case 5:
                     vector = new Vector3(-12.13872f, -4.09f, 0f);
                     break;
                 default:
@@ -111,13 +111,15 @@ namespace Managers
             return m_playerHealth;
         }
 
-        public void ChangeHealth(int amount)
+        public void ChangeHealth(float amount)
         {
-            m_playerHealth += amount;
+            m_playerHealth += Mathf.RoundToInt(amount);
 
             if (m_playerHealth < 0) m_playerHealth = 0;
 
             if (m_playerHealth > 150) m_playerHealth = 150;
+            
+            
         }
     }
 }

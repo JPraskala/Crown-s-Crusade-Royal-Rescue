@@ -8,8 +8,21 @@ namespace Managers
 {
     public class SceneLoader : MonoBehaviour
     {
+        public enum MyScenes
+        {
+            Title,
+            Pause,
+            Win,
+            Defeat,
+            Credits,
+            Level1,
+            Level2,
+            Level3,
+            Level4
+        }
+        
         private static SceneLoader _sceneInstance;
-        private static string _sceneReference;
+        private static int _sceneIndex; 
 
         
         private void Awake() 
@@ -25,41 +38,34 @@ namespace Managers
             }
         }
         
-        private static bool SceneExists() 
-        {
-#if UNITY_EDITOR
-            var scenePaths = AssetDatabase.FindAssets("t:Scene", new[] {"Assets/Scenes/Main_Scenes"});
-            return scenePaths.Select(AssetDatabase.GUIDToAssetPath).Any(scene => scene.EndsWith(_sceneReference + ".unity"));
-#else
-        for (int i = 0; i < SceneManager.sceneCount; i++)
-        {
-            Scene scene = SceneManager.GetSceneAt(i);
-            if (scene.name == sceneName)
-            {
-                return true;
-            }
-        }
-        return false;
-#endif
-        }
+//         private static bool SceneExists() 
+//         {
+// #if UNITY_EDITOR
+//             var scenePaths = AssetDatabase.FindAssets("t:Scene", new[] {"Assets/Scenes/Main_Scenes"});
+//             return scenePaths.Select(AssetDatabase.GUIDToAssetPath).Any(scene => scene.EndsWith(_sceneReference + ".unity"));
+// #else
+//         for (int i = 0; i < SceneManager.sceneCount; i++)
+//         {
+//             Scene scene = SceneManager.GetSceneAt(i);
+//             if (scene.name == sceneName)
+//             {
+//                 return true;
+//             }
+//         }
+//         return false;
+// #endif
+//         }
 
-        public static void LoadScene(string sceneName)
+        public static void LoadScene(MyScenes sceneName)
         {
-            _sceneReference = sceneName;
-            if (SceneExists())
-            {
-                SceneManager.LoadScene(_sceneReference);
-                SceneType();
-            }
-            else
-            {
-                throw new UnityException("Scene Name " + sceneName + " doesn't exist.");
-            }
+            _sceneIndex = (int)sceneName; 
+           SceneManager.LoadScene(_sceneIndex);
+           SceneType();
         }
 
         private static void SceneType() 
         {
-            if (_sceneReference[0] != 'L') 
+            if (_sceneIndex < 5) 
             {
                 Cursor.visible = true;
                 Cursor.lockState = CursorLockMode.Confined;
@@ -74,7 +80,7 @@ namespace Managers
         
         private static IEnumerator Loading()
         {
-            var sceneName = SceneManager.GetSceneByName(_sceneReference);
+            var sceneName = SceneManager.GetSceneByBuildIndex(_sceneIndex);
 
             while (!sceneName.isLoaded)
             {
@@ -85,11 +91,9 @@ namespace Managers
             PlayerManager.Instance.ToggleScript();
         }
 
-        public static string CurrentScene()
+        public static int CurrentSceneIndex()
         {
-            return SceneManager.GetActiveScene().name;
+            return SceneManager.GetActiveScene().buildIndex;
         }
-        
-        
     }
 }
