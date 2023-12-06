@@ -1,14 +1,11 @@
-using System.Globalization;
 using Managers;
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 
 namespace UI
 {
     public class PlayerUI : MonoBehaviour
     {
-        [SerializeField] private Slider healthSlider;
         [SerializeField] private TMP_Text healthCounter;
         private CanvasGroup m_playerCanvas;
         private static PlayerUI Instance { get; set; }
@@ -28,11 +25,6 @@ namespace UI
 
         private void Start()
         {
-            if (healthSlider == null ^ healthSlider.name != "HealthSlider")
-            {
-                Debug.LogError("The health slider is not setup.");
-                Application.Quit(1);
-            }
 
             if (healthCounter == null ^ healthCounter.name != "Health_Counter")
             {
@@ -42,18 +34,17 @@ namespace UI
 
             if (!TryGetComponent(out m_playerCanvas)) gameObject.AddComponent<CanvasGroup>();
 
-            healthSlider.minValue = 0.0f;
-            healthSlider.maxValue = 150.0f;
+            healthCounter.fontSize = 26.5f;
+            healthCounter.autoSizeTextContainer = true;
         }
 
         private void Update()
         {
-            m_playerCanvas.alpha = PlayerManager.Instance.ScriptIsOn() ? 1f : 0f;
+            m_playerCanvas.alpha = PlayerManager.Instance.ScriptIsOn() ? 1.0f : 0.0f;
 
-            if (m_playerCanvas.alpha == 0f) return;
-            
-            healthSlider.value = PlayerManager.Instance.GetHealth();
-            healthCounter.text = healthSlider.value.ToString(CultureInfo.CurrentCulture);
+            if ((int)m_playerCanvas.alpha == 0) return;
+
+            healthCounter.text = "Health: " + PlayerManager.Instance.GetHealth();
         }
     }
 }

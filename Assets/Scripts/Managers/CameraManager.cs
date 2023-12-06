@@ -8,7 +8,6 @@ namespace Managers
         [SerializeField] private Vector3 offset;
         private Camera m_camera;
         private float m_smoothSpeed;
-        private float m_padding;
 
         private static CameraManager Instance { get; set; }
 
@@ -27,7 +26,6 @@ namespace Managers
 
         private void Start()
         {
-            //if (!offset.Equals(new Vector3(-2.2f, 2f, -6f))) offset = new Vector3(-2.2f, 2f, -6f);
 
             m_camera = Camera.main;
 
@@ -37,8 +35,7 @@ namespace Managers
                 Application.Quit(1);
             }
 
-            m_padding = 1.0f;
-            m_smoothSpeed = 0.45f;
+            m_smoothSpeed = 0.125f;
         }
 
         private static Transform FindPlayer()
@@ -57,24 +54,13 @@ namespace Managers
                 print("m_player is null.");
                 Application.Quit(1);
             }
-            
-            var cameraHeight = 2.0f * m_camera.orthographicSize;
-            var cameraWidth = cameraHeight * m_camera.aspect;
-
-            var cameraPosition = m_camera.transform.position;
-
-            var minX = cameraPosition.x - cameraWidth / 2.0f + m_padding;
-            var maxX = cameraPosition.x + cameraWidth / 2.0f - m_padding;
-
-            var minY = cameraPosition.y - cameraHeight / 2.0f + m_padding;
-            var maxY = cameraPosition.y + cameraHeight / 2.0f - m_padding;
 
             var targetPosition = m_player.position;
+            var cameraPosition = transform.position;
 
-            targetPosition.x = Mathf.Clamp(targetPosition.x, minX, maxX);
-            targetPosition.y = Mathf.Clamp(targetPosition.y, minY, maxY);
-
-            transform.position = Vector3.Lerp(transform.position, targetPosition + offset, m_smoothSpeed);
+            var desiredPosition = new Vector3(targetPosition.x, targetPosition.y + 1.5f, cameraPosition.z);
+            var smoothedPosition = Vector3.Lerp(cameraPosition, desiredPosition, m_smoothSpeed);
+            transform.position = smoothedPosition;
         }
     }
 }

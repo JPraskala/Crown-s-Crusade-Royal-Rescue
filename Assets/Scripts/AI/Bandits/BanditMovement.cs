@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
+using Managers;
 using Player;
 
 namespace AI.Bandits
@@ -33,15 +34,17 @@ namespace AI.Bandits
         private int m_movingParam;
         private int m_combatParam;
         private BanditMoveStates m_state;
+        private BanditCombat m_combat;
         
-        public static BanditMovement Instance { get; private set; }
         
         #region Setting Up
+        public BanditMovement Instance { get; private set; }
+
         private void Awake()
         {
             Instance = this;
         }
-        
+
         private void Start()
         {
             if (!TryGetComponent(out m_bandit))
@@ -55,13 +58,8 @@ namespace AI.Bandits
                 Debug.LogError("An animator is not attached to the bandits.");
                 Application.Quit(1);
             }
-        
-            m_target = GameObject.FindGameObjectWithTag("Player").transform;
-            if (m_target == null)
-            {
-                Debug.LogError("The target variable in BanditMovement couldn't be set.");
-                Application.Quit(1);
-            }
+
+            m_combat = GetComponent<BanditCombat>();
             
             SetupVariables();
             SetupNavMesh();
@@ -99,7 +97,18 @@ namespace AI.Bandits
         #region Bandit States and Animations
         private void Update()
         {
+            if (!PlayerManager.Instance.PlayerSetup())
+                return;
+
+            if (!m_target)
+                // ReSharper disable once Unity.PerformanceCriticalCodeInvocation
+                m_target = GameObject.Find("Gareth").transform;
+            
             m_allowedToMove = m_state == BanditMoveStates.Jump ^ m_state == BanditMoveStates.Move;
+
+            m_rb.constraints = m_state == BanditMoveStates.Combat
+                ? RigidbodyConstraints2D.FreezePosition
+                : RigidbodyConstraints2D.FreezePositionY;
             
             m_anim.SetBool(m_movingParam, m_allowedToMove);
         
@@ -126,7 +135,6 @@ namespace AI.Bandits
             
             
         }
-        
         private bool IsGrounded()
         {
             return Physics2D.Raycast(transform.position, Vector2.down, 0.1f, ground);
@@ -141,18 +149,13 @@ namespace AI.Bandits
         
             if (!m_allowedToMove)
                 m_bandit.velocity = Vector3.zero;
-
+            
             if (Distance() >= 5.5f)
                 m_state = BanditMoveStates.Idle;
-            else if (Distance() > 1.3f && (IsFacingPlayer() || m_targetLocked))
+            else if (Distance() > 1.5f && (IsFacingPlayer() || m_targetLocked))
                 Movement();
             else
                 m_state = BanditMoveStates.Combat;
-        }
-        
-        private float Distance()
-        {
-            return Vector2.Distance(transform.position, m_target.position);
         }
         
         private bool IsFacingPlayer()
@@ -165,12 +168,17 @@ namespace AI.Bandits
         }
         private void Movement()
         {
+            if (!m_combat.BanditAlive())
+            {
+                m_rb.constraints = RigidbodyConstraints2D.FreezeAll;
+                return;
+            }
             m_targetLocked = true;
             var path = new NavMeshPath();
             if (!(m_bandit.CalculatePath(m_target.position, path) && path.status == NavMeshPathStatus.PathComplete))
                 return;
 
-            if (Mathf.Approximately(m_target.position.y, m_target.position.y))
+            if ((int)transform.position.y == (int)m_target.position.y)
             {
                 m_bandit.destination = m_target.position;
                 m_state = BanditMoveStates.Move;
@@ -183,7 +191,7 @@ namespace AI.Bandits
             if ((!m_facingRight && xDirection > 0) ^ (m_facingRight && xDirection < 0))
                 Flip();
             
-            if (Distance() >= 2.1f && (m_target.position.y > transform.position.y) && PlayerMovement.Instance.IsGrounded())
+            if (Distance() >= 2.1f && (m_target.position.y > transform.position.y) && PlayerMovement.Instance.IsGrounded() && (int)transform.position.y == (int)m_target.position.y)
                 Jump();
         }
         private void Jump()
@@ -207,10 +215,21 @@ namespace AI.Bandits
             localScale.x *= -1.0f;
             agentTransform.localScale = localScale;
         }
-
-        private bool AtBoundary()
+        #endregion
+        #region Public Methods
+        public bool IsHeavyBandit()
         {
-            return Physics2D.Raycast(transform.position, Vector2.right, 0.3f, ground);
+            return m_isHeavyBandit;
+        }
+
+        public bool InCombatState()
+        {
+            return m_state == BanditMoveStates.Combat;
+        }
+        
+        public float Distance()
+        {
+            return m_target ? Vector2.Distance(transform.position, m_target.position) : Mathf.Infinity;
         }
         #endregion
     }

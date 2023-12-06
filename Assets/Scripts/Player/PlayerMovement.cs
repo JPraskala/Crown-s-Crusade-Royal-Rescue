@@ -13,7 +13,7 @@ namespace Player
         private Animator m_anim;
         private Game m_game;
         [Header("Movement")] 
-        private int m_speed;
+        private uint m_speed;
         private const float JumpSpeed = 8.2f;
         private bool m_facingRight;
         private Vector2 m_gravity;
@@ -133,6 +133,8 @@ namespace Player
                     m_rightEdge = 110.4864f;
                     break;
                 case 6:
+                    m_leftEdge = -13.27f;
+                    m_rightEdge = 113.45f;
                     break;
                 case 7:
                     break;
@@ -194,7 +196,7 @@ namespace Player
 
         private void DetermineSpeed()
         {
-            m_speed = !m_canMove ? 0 : PlayerCombat.Instance.InCombat() ? 5 : 6;
+            m_speed = (uint)(!m_canMove ? 0 : 6);
         }
         private void Flip()
         {

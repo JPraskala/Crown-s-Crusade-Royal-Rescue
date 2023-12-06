@@ -1,6 +1,7 @@
-using Managers;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using AI.Bandits;
+using Unity.VisualScripting;
 
 namespace Player
 {
@@ -10,8 +11,9 @@ namespace Player
         private int m_attack;
         private Animator m_anim;
         private Game m_game;
-        private bool m_inCombat;
-        private float m_playerHealth;
+        private BanditCombat m_combat;
+        private BanditMovement m_banditMovement;
+        private GameObject[] m_lightBandits;
         
 
         public static PlayerCombat Instance { get; private set; }
@@ -20,6 +22,7 @@ namespace Player
         {
             Instance = this;
         }
+
         private void Start()
         {
             m_anim = GetComponent<Animator>();
@@ -30,34 +33,47 @@ namespace Player
             m_game.Player.Block.canceled += PlayerBlock;
 
             m_game.Player.Fire.performed += PlayerAttack;
-            
+            m_lightBandits = GameObject.FindGameObjectsWithTag("LightBandit");
+
+            m_combat = FindObjectOfType<BanditCombat>().Instance;
+            m_banditMovement = FindObjectOfType<BanditMovement>().Instance;
+
             SetupVariables();
+        }
+
+        private void Update()
+        {
+            
+            print("Bandit Movement: " + m_banditMovement);
+            print("Bandit Combat: " + m_combat);
         }
 
         private void SetupVariables()
         {
             m_block = Animator.StringToHash("block");
             m_attack = Animator.StringToHash("attack");
-            m_inCombat = false;
-            m_playerHealth = PlayerManager.Instance.GetHealth();
         }
-
+        
         private void PlayerBlock(InputAction.CallbackContext context)
         {
-            var condition = context.started && PlayerMovement.Instance.IsGrounded() && m_inCombat;
+            var condition = context.started && PlayerMovement.Instance.IsGrounded();
             m_anim.SetBool(m_block, condition);
         }
 
         private void PlayerAttack(InputAction.CallbackContext context)
         {
-            if (!context.performed || !m_inCombat) return;
+            if (!context.performed) return;
             
             m_anim.SetTrigger(m_attack);
+            
+            
+            if (m_banditMovement.Distance() <= 1.5f)
+                m_combat.BanditHurt(DamageDealt());
         }
-
-        public bool InCombat()
+        
+        private static int DamageDealt()
         {
-            return m_inCombat;
+            return Random.Range(20, 51);
         }
     }
 }

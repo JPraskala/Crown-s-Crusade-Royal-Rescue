@@ -8,6 +8,7 @@ namespace Managers
         private int m_playerHealth;
         [SerializeField] private GameObject playerPrefab;
         private GameObject m_player;
+        private bool m_playerSetup;
         
         public static PlayerManager Instance { get; private set; }
         
@@ -27,6 +28,7 @@ namespace Managers
         private void Start()
         {
             m_playerHealth = 150;
+            m_playerSetup = false;
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
@@ -41,6 +43,7 @@ namespace Managers
                 case false when m_player != null:
                     Destroy(m_player);
                     m_player = null;
+                    m_playerSetup = false;
                     break;
                 case true:
                     PlayerInstance();
@@ -73,6 +76,7 @@ namespace Managers
             m_player.name = "Gareth";
             m_player.tag = "Player";
             m_player.layer = 0;
+            m_playerSetup = true;
         }
 
         public bool ScriptIsOn()
@@ -80,6 +84,11 @@ namespace Managers
             return m_scriptOn;
         }
 
+        public bool PlayerSetup()
+        {
+            return m_playerSetup;
+        }
+        
         public Transform GetPlayer()
         {
             return m_player ? m_player.transform : null;
@@ -96,7 +105,10 @@ namespace Managers
             switch (sceneIndex)
             {
                 case 5:
-                    vector = new Vector3(-12.13872f, -4.09f, 0f);
+                    vector = new Vector3(-12.13872f, -4.09f, 0.0f);
+                    break;
+                case 6:
+                    vector = new Vector3(-11.76f, -0.112f, 0.0f);
                     break;
                 default:
                     vector = Vector3.zero;
@@ -105,21 +117,13 @@ namespace Managers
 
             return Instantiate(playerPrefab, vector, Quaternion.identity);
         }
-
+        
+        
         public int GetHealth()
         {
             return m_playerHealth;
         }
-
-        public void ChangeHealth(float amount)
-        {
-            m_playerHealth += Mathf.RoundToInt(amount);
-
-            if (m_playerHealth < 0) m_playerHealth = 0;
-
-            if (m_playerHealth > 150) m_playerHealth = 150;
-            
-            
-        }
+        
+        
     }
 }

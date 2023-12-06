@@ -287,3 +287,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2a33f81434410c449a2b14f5889c1e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bandits:
+  - {fileID: 8651031503717112636, guid: 255423897398df84eb24acca7f3cf856, type: 3}
+  - {fileID: 6053854192951780591, guid: f044a0fc055b0ab49916fff1b2b8da36, type: 3}
