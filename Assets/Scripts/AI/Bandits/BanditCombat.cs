@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
 using System.Collections;
+using Managers;
+using Player;
 using Random = UnityEngine.Random;
 
 namespace AI.Bandits
@@ -21,10 +23,8 @@ namespace AI.Bandits
         private int m_attackParam;
         private int m_defeatedParam;
         private int m_recoverParam;
-        private const float TargetFrame = (float)4 / 7;
         private BanditCombatStates m_combatState;
         private bool m_canAttack;
-        private bool m_canRecover;
         private BanditMovement m_banditMovement;
         
         #region Setting Up
@@ -46,9 +46,8 @@ namespace AI.Bandits
             m_recoverParam = Animator.StringToHash("recover");
             m_combatState = BanditCombatStates.Attack;
             m_canAttack = true;
-            m_canRecover = true;
             StartCoroutine(WaitFrame());
-            m_banditHealth = m_banditMovement.IsHeavyBandit() ? 100 : 50;
+            m_banditHealth = m_banditMovement.IsHeavyBandit() ? 125 : 100;
         }
 
         private static IEnumerator WaitFrame()
@@ -60,7 +59,7 @@ namespace AI.Bandits
         #region Combat
         private void Update()
         {
-            if (!m_banditMovement.InCombatState()) return;
+            if (!m_banditMovement.InCombatState() || PlayerManager.Instance.GetHealth() == 0) return;
             
             if (m_banditMovement.Distance() > 1.5f)
                 m_canAttack = true;
@@ -72,6 +71,19 @@ namespace AI.Bandits
                     {
                         m_canAttack = false;
                         m_anim.Play(m_attackParam);
+                        int damage;
+                        if (PlayerCombat.Instance.IsBlocking())
+                        {
+                            PlayerCombat.Instance.Blocked();
+                            damage = DamageDealt() / 2;
+                        }
+                        else
+                        {
+                            PlayerCombat.Instance.NotBlocked();
+                            damage = DamageDealt();
+                        }
+                        
+                        PlayerManager.Instance.PlayerHurt(damage);
                         StartCoroutine(AttackPause());
                     }
                     break;
@@ -128,17 +140,6 @@ namespace AI.Bandits
         public bool BanditAlive()
         {
             return m_banditHealth > 0;
-        }
-
-        public bool AtTargetFrame()
-        {
-            var banditInfo = m_anim.GetCurrentAnimatorStateInfo(0);
-            if (!banditInfo.IsName("Attack"))
-                return false;
-
-            const float toleranceLevel = 0.05f;
-            var result = Mathf.Abs(banditInfo.normalizedTime - TargetFrame);
-            return result < toleranceLevel;
         }
         #endregion
         #endregion

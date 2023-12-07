@@ -21,7 +21,8 @@ namespace UI
 
         private void TitleButton()
         {
-            UIManager.Instance.ExecuteButton(titleButton);
+            if (UIManager.ButtonValid(titleButton))
+                UIManager.Instance.ExecuteButton(titleButton);
         }
     }
 }

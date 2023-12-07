@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
 using Managers;
+using UI;
 
 namespace Player
 {
@@ -91,17 +92,26 @@ namespace Player
         private void OnCollisionEnter2D(Collision2D other)
         {
             if (other.gameObject.layer == m_ground)
-            {
                 m_grounded = true;
-            }
+
+            if (!other.gameObject.CompareTag("Spikes"))
+                return;
+
+            m_grounded = true;
+            PlayerManager.Instance.PlayerHurt(10);
         }
 
+        
         private void OnCollisionExit2D(Collision2D other)
         {
             if (other.gameObject.layer == m_ground)
-            {
                 m_grounded = false;
-            }
+
+            if (!other.gameObject.CompareTag("Spikes"))
+                return;
+
+            m_grounded = false;
+            PlayerManager.Instance.PlayerHurt(0);
         }
 
         #endregion
@@ -128,15 +138,13 @@ namespace Player
 
             switch (currentScene)
             {
-                case 5:
+                case 6:
                     m_leftEdge = -16.47441f;
                     m_rightEdge = 110.4864f;
                     break;
-                case 6:
+                case 7:
                     m_leftEdge = -13.27f;
                     m_rightEdge = 113.45f;
-                    break;
-                case 7:
                     break;
             }
 
@@ -144,7 +152,16 @@ namespace Player
             m_onLeftEdge = playerTransform.x <= m_leftEdge;
             m_onRightEdge = playerTransform.x >= m_rightEdge;
             
-            
+            if (currentScene == 6 && m_onRightEdge)
+                NextScene();
+        }
+
+        private static void NextScene()
+        {
+            if (BanditManager.Instance.BanditsAlive() == 0)
+                SceneLoader.LoadScene(SceneLoader.MyScenes.Level2);
+            else 
+                PlayerUI.Instance.FreezeScene();
         }
 
         private void Jump(InputAction.CallbackContext context)

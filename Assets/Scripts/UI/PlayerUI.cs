@@ -1,6 +1,7 @@
 using Managers;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 namespace UI
 {
@@ -8,7 +9,9 @@ namespace UI
     {
         [SerializeField] private TMP_Text healthCounter;
         private CanvasGroup m_playerCanvas;
-        private static PlayerUI Instance { get; set; }
+        [SerializeField] private Image failurePanel;
+        [SerializeField] private Button failureButton;
+        public static PlayerUI Instance { get; private set; }
 
         private void Awake()
         {
@@ -34,17 +37,47 @@ namespace UI
 
             if (!TryGetComponent(out m_playerCanvas)) gameObject.AddComponent<CanvasGroup>();
 
-            healthCounter.fontSize = 26.5f;
-            healthCounter.autoSizeTextContainer = true;
-        }
+            if (failureButton == null)
+            {
+                Debug.LogError("Button failureButton is not setup.");
+                Application.Quit(1);
+            }
 
+            healthCounter.fontSize = 26.5f;
+            healthCounter.alignment = TextAlignmentOptions.Justified;
+            if (failurePanel == null)
+                gameObject.AddComponent<Image>();
+            
+            failureButton.onClick.AddListener(ReturnToScene);
+            failurePanel.gameObject.SetActive(false);
+        }
+        
         private void Update()
         {
             m_playerCanvas.alpha = PlayerManager.Instance.ScriptIsOn() ? 1.0f : 0.0f;
 
             if ((int)m_playerCanvas.alpha == 0) return;
 
-            healthCounter.text = "Health: " + PlayerManager.Instance.GetHealth();
+            healthCounter.text = $"HP:{PlayerManager.Instance.GetHealth()}";
+        }
+
+        public void FreezeScene()
+        {
+            failurePanel.gameObject.SetActive(true);
+            Time.timeScale = 0.0f;
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.Confined;
+        }
+
+        private void ReturnToScene()
+        {
+            if (!failureButton.isActiveAndEnabled)
+                return;
+            
+            
+            failurePanel.gameObject.SetActive(false);
+            Time.timeScale = 1.0f;
+            Cursor.visible = false;
         }
     }
 }

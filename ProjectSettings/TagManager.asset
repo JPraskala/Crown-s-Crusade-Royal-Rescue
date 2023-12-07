@@ -10,9 +10,9 @@ TagManager:
   - Title
   - BoundsRight
   - BoundsLeft
-  - HeavyBandit
-  - LightBandit
   - Spikes
+  - Enemy
+  - Bandits
   layers:
   - Default
   - TransparentFX

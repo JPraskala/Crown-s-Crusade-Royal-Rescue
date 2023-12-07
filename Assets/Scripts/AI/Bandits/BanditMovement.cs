@@ -69,7 +69,7 @@ namespace AI.Bandits
         {
             m_state = BanditMoveStates.Idle;
             m_facingRight = false;
-            m_isHeavyBandit = gameObject.CompareTag("HeavyBandit");
+            m_isHeavyBandit = gameObject.name == "HeavyBandit";
             m_targetLocked = false;
             m_gravityEnabled = true;
             m_jumpSpeed = m_isHeavyBandit ? 6.2f : 6.8f;
@@ -97,7 +97,7 @@ namespace AI.Bandits
         #region Bandit States and Animations
         private void Update()
         {
-            if (!PlayerManager.Instance.PlayerSetup())
+            if (!PlayerManager.Instance.PlayerSetup() || PlayerManager.Instance.GetHealth() == 0)
                 return;
 
             if (!m_target)
@@ -106,9 +106,18 @@ namespace AI.Bandits
             
             m_allowedToMove = m_state == BanditMoveStates.Jump ^ m_state == BanditMoveStates.Move;
 
-            m_rb.constraints = m_state == BanditMoveStates.Combat
-                ? RigidbodyConstraints2D.FreezePosition
-                : RigidbodyConstraints2D.FreezePositionY;
+            // m_rb.constraints = m_state == BanditMoveStates.Combat
+            //     ? RigidbodyConstraints2D.FreezeAll
+            //     : RigidbodyConstraints2D.FreezePositionY;
+
+            if (m_state == BanditMoveStates.Combat)
+                m_rb.constraints = RigidbodyConstraints2D.FreezeAll;
+            else
+            {
+                m_rb.constraints = RigidbodyConstraints2D.FreezePositionY;
+                // ReSharper disable once Unity.InefficientPropertyAccess
+                m_rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            }
             
             m_anim.SetBool(m_movingParam, m_allowedToMove);
         
@@ -150,6 +159,12 @@ namespace AI.Bandits
             if (!m_allowedToMove)
                 m_bandit.velocity = Vector3.zero;
             
+            if (!m_combat.BanditAlive())
+            {
+                m_rb.constraints = RigidbodyConstraints2D.FreezeAll;
+                return;
+            }
+            
             if (Distance() >= 5.5f)
                 m_state = BanditMoveStates.Idle;
             else if (Distance() > 1.5f && (IsFacingPlayer() || m_targetLocked))
@@ -168,15 +183,12 @@ namespace AI.Bandits
         }
         private void Movement()
         {
-            if (!m_combat.BanditAlive())
-            {
-                m_rb.constraints = RigidbodyConstraints2D.FreezeAll;
-                return;
-            }
             m_targetLocked = true;
             var path = new NavMeshPath();
             if (!(m_bandit.CalculatePath(m_target.position, path) && path.status == NavMeshPathStatus.PathComplete))
                 return;
+            
+            
 
             if ((int)transform.position.y == (int)m_target.position.y)
             {
@@ -185,7 +197,6 @@ namespace AI.Bandits
                 var velocity = m_bandit.velocity;
                 m_rb.velocity = velocity;
             }
-            
             
             var xDirection = (int)m_bandit.velocity.x;
             if ((!m_facingRight && xDirection > 0) ^ (m_facingRight && xDirection < 0))

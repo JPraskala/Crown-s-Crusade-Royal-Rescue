@@ -30,10 +30,10 @@ namespace Managers
         
         public void ToggleScript()
         {
-            m_scriptActive = SceneLoader.CurrentSceneIndex() < 5;
+            m_scriptActive = SceneLoader.CurrentSceneIndex() < 6;
             gameObject.SetActive(m_scriptActive);
         }
-
+        
         public void ExecuteButton(Button button)
         {
             if (!m_scriptActive) return;
@@ -42,6 +42,8 @@ namespace Managers
             {
                 case nameof(TransitionTags.Start):
                     SceneLoader.LoadScene(SceneLoader.MyScenes.Level1);
+                    if (PlayerManager.Instance.GetHealth() != 150)
+                        PlayerManager.Instance.ResetHealth();
                     break;
                 case nameof(TransitionTags.Credits):
                     SceneLoader.LoadScene(SceneLoader.MyScenes.Credits);
@@ -53,6 +55,11 @@ namespace Managers
                     print("Invalid Tag");
                     break;
             }
+        }
+
+        public static bool ButtonValid(Button button)
+        {
+            return button.isActiveAndEnabled;
         }
     }
 }

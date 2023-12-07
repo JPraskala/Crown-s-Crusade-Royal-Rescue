@@ -23,12 +23,14 @@ namespace UI
 
         private void StartButton()
         {
-            UIManager.Instance.ExecuteButton(startButton);
+            if (UIManager.ButtonValid(startButton))
+                UIManager.Instance.ExecuteButton(startButton);
         }
 
         private void CreditsButton()
         {
-            UIManager.Instance.ExecuteButton(creditsButton);
+            if (UIManager.ButtonValid(creditsButton))
+                UIManager.Instance.ExecuteButton(creditsButton);
         }
     }
 }

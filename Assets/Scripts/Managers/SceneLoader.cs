@@ -15,6 +15,7 @@ namespace Managers
             Win,
             Defeat,
             Credits,
+            Controls,
             Level1,
             Level2,
             Level3,
@@ -56,16 +57,16 @@ namespace Managers
 // #endif
 //         }
 
-        public static void LoadScene(MyScenes sceneName)
+        public static void LoadScene(MyScenes sceneName, LoadSceneMode mode = LoadSceneMode.Single)
         {
             _sceneIndex = (int)sceneName; 
-           SceneManager.LoadScene(_sceneIndex);
+           SceneManager.LoadScene(_sceneIndex, mode);
            SceneType();
         }
 
         private static void SceneType() 
         {
-            if (_sceneIndex < 5) 
+            if (_sceneIndex < 6) 
             {
                 Cursor.visible = true;
                 Cursor.lockState = CursorLockMode.Confined;

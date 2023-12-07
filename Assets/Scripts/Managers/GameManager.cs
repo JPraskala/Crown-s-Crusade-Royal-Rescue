@@ -4,18 +4,19 @@ namespace Managers
 {
     public class GameManager : MonoBehaviour
     {
-        private static GameManager _instance;
+        
+        public static GameManager Instance { get; private set; }
 
         private void Awake() 
         {
-            if (!_instance) 
-            {
-                _instance = this;
-                DontDestroyOnLoad(gameObject);
-            }
-            else 
+            if (Instance != null && Instance != this)
             {
                 Destroy(gameObject);
+            }
+            else
+            {
+                Instance = this;
+                DontDestroyOnLoad(gameObject);
             }
         }
 

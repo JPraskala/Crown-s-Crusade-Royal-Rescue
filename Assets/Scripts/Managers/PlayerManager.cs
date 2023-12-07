@@ -34,7 +34,7 @@ namespace Managers
         // ReSharper disable Unity.PerformanceAnalysis
         public void ToggleScript()
         {
-            m_scriptOn = SceneLoader.CurrentSceneIndex() >= 5;
+            m_scriptOn = SceneLoader.CurrentSceneIndex() >= 6;
             
             gameObject.SetActive(m_scriptOn);
 
@@ -53,7 +53,11 @@ namespace Managers
         
         private void PlayerInstance()
         {
-            if (m_player != null) return;
+            if (m_player != null)
+            {
+                m_player.transform.position = SetPlayer();
+                return;
+            }
             
             if (playerPrefab == null ^ playerPrefab.name != "Gareth")
             {
@@ -98,32 +102,50 @@ namespace Managers
         {
             var sceneIndex = SceneLoader.CurrentSceneIndex();
 
-            if (sceneIndex < 5) return null;
+            if (sceneIndex < 6) return null;
 
-            Vector3 vector;
-
-            switch (sceneIndex)
+            var vector = sceneIndex switch
             {
-                case 5:
-                    vector = new Vector3(-12.13872f, -4.09f, 0.0f);
-                    break;
-                case 6:
-                    vector = new Vector3(-11.76f, -0.112f, 0.0f);
-                    break;
-                default:
-                    vector = Vector3.zero;
-                    break;
-            }
+                6 => new Vector3(-12.13872f, -4.09f, 0.0f),
+                7 => new Vector3(-11.76f, -0.112f, 0.0f),
+                _ => Vector3.zero
+            };
 
             return Instantiate(playerPrefab, vector, Quaternion.identity);
         }
-        
+
+        private Vector3 SetPlayer()
+        {
+            var sceneIndex = SceneLoader.CurrentSceneIndex();
+
+            if (sceneIndex < 6) return Vector3.zero;
+
+            var vector = sceneIndex switch
+            {
+                6 => new Vector3(-12.13872f, -4.09f, 0.0f),
+                7 => new Vector3(-11.76f, -0.112f, 0.0f),
+                _ => Vector3.zero
+            };
+
+            return vector;
+        }
         
         public int GetHealth()
         {
             return m_playerHealth;
         }
-        
-        
+
+        public void PlayerHurt(int amount)
+        {
+            m_playerHealth -= Mathf.Abs(amount);
+
+            if (m_playerHealth < 0)
+                m_playerHealth = 0;
+        }
+
+        public void ResetHealth()
+        {
+            m_playerHealth = 150;
+        }
     }
 }
