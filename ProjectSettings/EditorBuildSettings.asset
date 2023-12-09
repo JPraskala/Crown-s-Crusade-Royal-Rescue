@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/Scenes/Main_Scenes/Title.unity
     guid: 5d80eb4cc344a754eb98c6faa406c253
   - enabled: 1
-    path: Assets/Scenes/Main_Scenes/Pause.unity
+    path: Assets/Scenes/Main_Scenes/Instructions.unity
     guid: 957adbeabc1a0034f813660a20a8f918
   - enabled: 1
     path: Assets/Scenes/Main_Scenes/Win.unity

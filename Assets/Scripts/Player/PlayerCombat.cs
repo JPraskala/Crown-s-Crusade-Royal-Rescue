@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Managers;
 using System.Collections;
+using AI.Wizard;
 
 namespace Player
 {
@@ -14,7 +15,7 @@ namespace Player
         private int m_defeated;
         private Animator m_anim;
         private Game m_game;
-        private GameObject[] m_enemies;
+        [SerializeField] private GameObject[] enemies;
         private bool m_condition;
         
 
@@ -35,7 +36,6 @@ namespace Player
             m_game.Player.Block.canceled += PlayerBlock;
 
             m_game.Player.Fire.performed += PlayerAttack;
-            m_enemies = GameObject.FindGameObjectsWithTag("Bandits");
             
             SetupVariables();
         }
@@ -45,8 +45,8 @@ namespace Player
             m_block = Animator.StringToHash("block");
             m_attack = Animator.StringToHash("attack");
             m_defend = Animator.StringToHash("Player.HeroKnight_Block");
-            m_hurt = Animator.StringToHash("hurt");
-            m_defeated = Animator.StringToHash("defeated");
+            m_hurt = Animator.StringToHash("Player.HeroKnight_Hurt");
+            m_defeated = Animator.StringToHash("Player.Death");
         }
         
         private void PlayerBlock(InputAction.CallbackContext context)
@@ -61,10 +61,16 @@ namespace Player
             
             m_anim.SetTrigger(m_attack);
 
-            foreach (var enemy in m_enemies)
+            foreach (var enemy in enemies)
             {
                 var damage = CriticalDamage() ? DamageDealt() * 2 : DamageDealt();
-                BanditManager.Instance.HandleBanditHurt(transform, 1.5f, damage);
+                if (enemy.name == "LightBandit" ^ enemy.name == "HeavyBandit")
+                    BanditManager.Instance.HandleBanditHurt(transform, 1.5f, damage);
+                else
+                {
+                    if (SceneLoader.CurrentSceneIndex() == 7)
+                        Wizard.Instance.WizardHurt(2.1f, 0.5f, damage);
+                }
             }
         }
         
@@ -77,17 +83,15 @@ namespace Player
         {
             return Random.Range(1, 101) <= 5;
         }
-
+        
         public void Blocked()
         {
             m_anim.Play(m_defend);
-            print("Blocked");
         }
 
         public void NotBlocked()
         {
-            m_anim.SetTrigger(m_hurt);
-            print("Not Blocked");
+            m_anim.Play(m_hurt);
         }
 
         public bool IsBlocking()
@@ -97,14 +101,21 @@ namespace Player
 
         public void PlayerDeath()
         {
-            m_anim.SetTrigger(m_defeated);
+            m_anim.Play(m_defeated);
             StartCoroutine(Delay());
-            SceneLoader.LoadScene(SceneLoader.MyScenes.Defeat);
         }
 
         private static IEnumerator Delay()
         {
-            yield return new WaitForSeconds(1.5f);
+            yield return new WaitForSeconds(2.5f);
+            SceneLoader.LoadScene(SceneLoader.MyScenes.Defeat);
+        }
+        
+        private void OnDestroy()
+        {
+            m_game.Player.Block.started -= PlayerBlock;
+            m_game.Player.Block.canceled -= PlayerBlock;
+            m_game.Player.Fire.performed -= PlayerAttack;
         }
     }
 }

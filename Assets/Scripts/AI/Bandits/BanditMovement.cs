@@ -187,19 +187,27 @@ namespace AI.Bandits
             var path = new NavMeshPath();
             if (!(m_bandit.CalculatePath(m_target.position, path) && path.status == NavMeshPathStatus.PathComplete))
                 return;
-            
-            
 
-            if ((int)transform.position.y == (int)m_target.position.y)
+
+            var banditYPosition = (int)transform.position.y;
+            var targetYPosition = (int)m_target.position.y;
+            
+            if (banditYPosition == targetYPosition)
             {
                 m_bandit.destination = m_target.position;
                 m_state = BanditMoveStates.Move;
                 var velocity = m_bandit.velocity;
                 m_rb.velocity = velocity;
             }
+            else
+            {
+                m_state = BanditMoveStates.Idle;
+                return;
+            }
             
             var xDirection = (int)m_bandit.velocity.x;
-            if ((!m_facingRight && xDirection > 0) ^ (m_facingRight && xDirection < 0))
+            var firstCondition = (!m_facingRight && xDirection > 0) ^ (m_facingRight && xDirection < 0);
+            if (firstCondition ^ (!IsFacingPlayer() && xDirection == 0))
                 Flip();
             
             if (Distance() >= 2.1f && (m_target.position.y > transform.position.y) && PlayerMovement.Instance.IsGrounded() && (int)transform.position.y == (int)m_target.position.y)

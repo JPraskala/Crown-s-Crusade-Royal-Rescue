@@ -1,3 +1,4 @@
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,7 +11,10 @@ namespace Managers
         {
             Start,
             Credits,
-            Title
+            Title,
+            Controls,
+            Instructions,
+            Exit
         }
         
         public static UIManager Instance { get; private set; }
@@ -42,14 +46,29 @@ namespace Managers
             {
                 case nameof(TransitionTags.Start):
                     SceneLoader.LoadScene(SceneLoader.MyScenes.Level1);
-                    if (PlayerManager.Instance.GetHealth() != 150)
+                    if (PlayerManager.Instance.GetHealth() != 250)
                         PlayerManager.Instance.ResetHealth();
+                    if (PlayerManager.Instance.GetPotions() != 0)
+                        PlayerManager.Instance.ResetPotions();
                     break;
                 case nameof(TransitionTags.Credits):
                     SceneLoader.LoadScene(SceneLoader.MyScenes.Credits);
                     break;
                 case nameof(TransitionTags.Title):
                     SceneLoader.LoadScene(SceneLoader.MyScenes.Title);
+                    break;
+                case nameof(TransitionTags.Controls):
+                    SceneLoader.LoadScene(SceneLoader.MyScenes.Controls);
+                    break;
+                case nameof(TransitionTags.Instructions):
+                    SceneLoader.LoadScene(SceneLoader.MyScenes.Instructions);
+                    break;
+                case nameof(TransitionTags.Exit):
+                    #if UNITY_EDITOR
+                        EditorApplication.isPlaying = false;
+                    #else
+                        Application.Quit();
+                    #endif
                     break;
                 default:
                     print("Invalid Tag");

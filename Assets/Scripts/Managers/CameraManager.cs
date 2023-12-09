@@ -58,7 +58,7 @@ namespace Managers
             var targetPosition = m_player.position;
             var cameraPosition = transform.position;
 
-            var desiredPosition = new Vector3(targetPosition.x, targetPosition.y + 1.5f, cameraPosition.z);
+            var desiredPosition = new Vector3(targetPosition.x, targetPosition.y + 2.5f, cameraPosition.z);
             var smoothedPosition = Vector3.Lerp(cameraPosition, desiredPosition, m_smoothSpeed);
             transform.position = smoothedPosition;
         }

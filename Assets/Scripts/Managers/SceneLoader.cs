@@ -1,7 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEditor;
-using System.Linq;
 using UnityEngine.SceneManagement;
 
 namespace Managers
@@ -11,15 +9,13 @@ namespace Managers
         public enum MyScenes
         {
             Title,
-            Pause,
+            Instructions,
             Win,
             Defeat,
             Credits,
             Controls,
             Level1,
-            Level2,
-            Level3,
-            Level4
+            Level2
         }
         
         private static SceneLoader _sceneInstance;
@@ -90,6 +86,7 @@ namespace Managers
             
             UIManager.Instance.ToggleScript();
             PlayerManager.Instance.ToggleScript();
+            GameManager.Instance.SetAudio();
         }
 
         public static int CurrentSceneIndex()

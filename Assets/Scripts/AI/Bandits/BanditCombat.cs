@@ -26,6 +26,9 @@ namespace AI.Bandits
         private BanditCombatStates m_combatState;
         private bool m_canAttack;
         private BanditMovement m_banditMovement;
+        [SerializeField] private GameObject potion;
+        private CapsuleCollider2D m_capsule;
+        private bool m_triedPotionSpawned;
         
         #region Setting Up
         
@@ -38,6 +41,7 @@ namespace AI.Bandits
 
         private void Start()
         {
+            m_capsule = GetComponent<CapsuleCollider2D>();
             m_banditMovement = GetComponent<BanditMovement>();
             m_anim = GetComponent<Animator>();
             m_hurtParam = Animator.StringToHash("hurt");
@@ -46,6 +50,7 @@ namespace AI.Bandits
             m_recoverParam = Animator.StringToHash("recover");
             m_combatState = BanditCombatStates.Attack;
             m_canAttack = true;
+            m_triedPotionSpawned = false;
             StartCoroutine(WaitFrame());
             m_banditHealth = m_banditMovement.IsHeavyBandit() ? 125 : 100;
         }
@@ -93,6 +98,13 @@ namespace AI.Bandits
                     break;
                 case BanditCombatStates.Death:
                     m_anim.SetTrigger(m_defeatedParam);
+                    var banditPosition = transform.position;
+                    if (PotionChance() && !m_triedPotionSpawned && BanditManager.Instance.BanditsAlive() >= 1)
+                        Instantiate(potion, new Vector3(banditPosition.x, banditPosition.y + .5f), Quaternion.identity);
+
+
+                    m_triedPotionSpawned = true;
+                    m_capsule.isTrigger = true;
                     break;
                 case BanditCombatStates.Recover:
                     m_anim.SetTrigger(m_recoverParam);
@@ -116,7 +128,8 @@ namespace AI.Bandits
         {
             return Random.Range(1.4f, 2.8f);
         }
-        public int DamageDealt()
+
+        private int DamageDealt()
         {
             var lowerBounds = m_banditMovement.IsHeavyBandit() ? 25 : 15;
             var upperBounds = m_banditMovement.IsHeavyBandit() ? 41 : 31;
@@ -141,7 +154,13 @@ namespace AI.Bandits
         {
             return m_banditHealth > 0;
         }
+
+        private static bool PotionChance()
+        {
+            return Random.Range(1, 3) == 1;
+        }
         #endregion
         #endregion
+        
     }
 }

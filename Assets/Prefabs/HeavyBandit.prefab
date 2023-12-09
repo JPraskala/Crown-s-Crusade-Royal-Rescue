@@ -109,7 +109,7 @@ GameObject:
   - component: {fileID: 5243614478384610778}
   m_Layer: 0
   m_Name: HeavyBandit
-  m_TagString: Bandits
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -293,6 +293,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2eaacdbe088eec24892ce3939cbd25bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  potion: {fileID: 8475069425671262055, guid: 54340ea0f9b820e49a4d3ac5aeccde3e, type: 3}
 --- !u!114 &-8228994823231348994
 MonoBehaviour:
   m_ObjectHideFlags: 0

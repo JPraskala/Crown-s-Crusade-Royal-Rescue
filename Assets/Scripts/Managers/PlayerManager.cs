@@ -1,3 +1,4 @@
+using Player;
 using UnityEngine;
 
 namespace Managers
@@ -9,6 +10,7 @@ namespace Managers
         [SerializeField] private GameObject playerPrefab;
         private GameObject m_player;
         private bool m_playerSetup;
+        private uint m_potionsAmount;
         
         public static PlayerManager Instance { get; private set; }
         
@@ -27,7 +29,8 @@ namespace Managers
 
         private void Start()
         {
-            m_playerHealth = 150;
+            m_potionsAmount = 0;
+            m_playerHealth = 250;
             m_playerSetup = false;
         }
 
@@ -114,7 +117,7 @@ namespace Managers
             return Instantiate(playerPrefab, vector, Quaternion.identity);
         }
 
-        private Vector3 SetPlayer()
+        private static Vector3 SetPlayer()
         {
             var sceneIndex = SceneLoader.CurrentSceneIndex();
 
@@ -135,17 +138,54 @@ namespace Managers
             return m_playerHealth;
         }
 
-        public void PlayerHurt(int amount)
+        public void PlayerHurt(float amount)
         {
-            m_playerHealth -= Mathf.Abs(amount);
+            m_playerHealth -= Mathf.RoundToInt(Mathf.Abs(amount));
 
             if (m_playerHealth < 0)
                 m_playerHealth = 0;
+            
+            if (m_playerHealth == 0)
+                PlayerCombat.Instance.PlayerDeath();
         }
 
         public void ResetHealth()
         {
-            m_playerHealth = 150;
+            m_playerHealth = 250;
+        }
+
+        public uint GetPotions()
+        {
+            return m_potionsAmount;
+        }
+
+        public void PotionCollected()
+        {
+            m_potionsAmount++;
+        }
+
+        private void IncreaseHealth()
+        {
+            if (m_playerHealth == 250 || m_potionsAmount == 0)
+                return;
+
+            var health = m_playerHealth / .25f;
+            m_playerHealth = Mathf.RoundToInt(health);
+            m_potionsAmount--;
+
+            if (m_playerHealth > 250)
+                m_playerHealth = 250;
+        }
+
+        public void ResetPotions()
+        {
+            m_potionsAmount = 0;
+        }
+
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.F))
+                IncreaseHealth();
         }
     }
 }

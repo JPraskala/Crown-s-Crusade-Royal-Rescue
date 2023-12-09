@@ -12,7 +12,10 @@ TagManager:
   - BoundsLeft
   - Spikes
   - Enemy
-  - Bandits
+  - Potions
+  - Exit
+  - Controls
+  - Instructions
   layers:
   - Default
   - TransparentFX

@@ -94,6 +94,12 @@ namespace Player
             if (other.gameObject.layer == m_ground)
                 m_grounded = true;
 
+            if (other.gameObject.CompareTag("Potions"))
+            {
+                Destroy(other.gameObject);
+                PlayerManager.Instance.PotionCollected();
+            }
+
             if (!other.gameObject.CompareTag("Spikes"))
                 return;
 
@@ -151,19 +157,16 @@ namespace Player
             var playerTransform = transform.position;
             m_onLeftEdge = playerTransform.x <= m_leftEdge;
             m_onRightEdge = playerTransform.x >= m_rightEdge;
-            
-            if (currentScene == 6 && m_onRightEdge)
-                NextScene();
-        }
 
-        private static void NextScene()
-        {
-            if (BanditManager.Instance.BanditsAlive() == 0)
+            if (currentScene == 6 && BanditManager.Instance.BanditsAlive() == 0)
+            {
                 SceneLoader.LoadScene(SceneLoader.MyScenes.Level2);
-            else 
-                PlayerUI.Instance.FreezeScene();
+                m_speed = 6;
+            }
+            
+            if (currentScene == 7)
+                BarrierLifted();
         }
-
         private void Jump(InputAction.CallbackContext context)
         {
             if (!m_grounded || !context.performed) return;
@@ -176,6 +179,20 @@ namespace Player
             StartCoroutine(JumpDuration());
         }
 
+        private void BarrierLifted()
+        {
+            var playerPosition = transform.position;
+            if (playerPosition.x >= 74.01254f && BanditManager.Instance.BanditsAlive() > 0)
+            {
+                m_speed = 0;
+                if (Input.GetKey(KeyCode.A) ^ Input.GetKey(KeyCode.LeftArrow))
+                    m_speed = 6;
+            }
+            
+            if (BanditManager.Instance.BanditsAlive() == 0)
+                PlayerUI.Instance.ChangeBanditCounterText();
+        }
+        
         private IEnumerator JumpDuration()
         {
             yield return new WaitForSeconds(.2f);
@@ -229,5 +246,10 @@ namespace Player
             return m_grounded;
         }
         #endregion
+
+        private void OnDestroy()
+        {
+            m_game.Player.Jump.performed -= Jump;
+        }
     }
 }

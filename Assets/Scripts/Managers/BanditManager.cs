@@ -23,7 +23,7 @@ namespace Managers
             m_banditMovements = GetComponentsInChildren<BanditMovement>();
             m_animators = GetComponentsInChildren<Animator>();
 
-            if (m_banditCombats != null && m_banditMovements != null && m_animators != null)
+            if (m_banditCombats.Any() && m_banditMovements.Any() && m_animators.Any())
                 return;
             
             Debug.LogError("The BanditManager didn't successfully get all the components.");
@@ -46,7 +46,11 @@ namespace Managers
         {
             return m_banditCombats.Sum(combat => combat.BanditAlive() ? 1 : 0);
         }
-        
+
+        private void OnDestroy()
+        {
+            Instance = null;
+        }
         
     }
 }
